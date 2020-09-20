@@ -127,6 +127,7 @@ $player2Score = 0;
 
 $cardsChosen = [];
 
+test
 
 for ($i = 0; $i < 4; $i++) {
         $cardSelected = array_rand($deck);
