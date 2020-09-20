@@ -1,0 +1,26 @@
+Create array of cards in deck
+Create two players
+Select two cards randomly from array for player 1
+    Add card values to create score
+Repeat for player 2
+If either player 1's score or player 2's score is above 21
+    If player 1's score and player 2's score are both above 21
+        Both players lose
+    If player 1's score is above 21
+        Player 2 wins
+    If player 2's score is above 21
+        Player 1 wins
+Else
+    If player 1's score is equal to player 2's score
+        Draw
+    Else if player 1's score is greater than player 2's score
+        Player 1 wins
+    Else
+        Player 2 wins
+
+
+Rules
+    All four card selected must be unique
+    A player loses if the total of their two cards is greater than 21
+    A player wins if their score is higher than the other player's
+    Ace can be 1 or 11 (NTH)
