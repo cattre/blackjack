@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang='en'>
-<head>
-    <title>Blackjack</title>
-    <link rel='stylesheet' type= 'text/css' href='blackjack.css'>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta charset="UTF-8">
-</head>
+    <head>
+        <title>Blackjack</title>
+        <link rel='stylesheet' type= 'text/css' href='blackjack.css'>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="UTF-8">
+    </head>
 
 <?php
 
@@ -62,7 +62,7 @@ $images = [
     'Jack of Diamonds' => 'DIAMOND-11-JACK.svg',
     'Queen of Diamonds' => 'DIAMOND-12-QUEEN.svg',
     'King of Diamonds' => 'DIAMOND-13-KING.svg'
-];;
+];
 
 $deck = [
     'Ace of Spades' => 11,
@@ -127,52 +127,38 @@ $player2Score = 0;
 
 $cardsChosen = [];
 
-test
+function deal_card() {
 
-for ($i = 0; $i < 4; $i++) {
-        $cardSelected = array_rand($deck);
-        if ($i % 2 === 0) {
-//            echo "Player 1 card: $cardSelected (value $deck[$cardSelected])<br>";
-            $player1Score += $deck[$cardSelected];
-            $player1Cards[] = $deck[$cardSelected];
-            $cardsChosen[] = $cardSelected;
-        } else {
-//            echo "Player 2 card: $cardSelected (value $deck[$cardSelected])<br>";
-            $player2Score += $deck[$cardSelected];
-            $player2Cards[] = $deck[$cardSelected];
-            $cardsChosen[] = $cardSelected;
-        }
-        array_splice($deck, intval($cardSelected), 1);
-}
+    global $deck, $player1Cards, $player2Cards, $player1Score, $player2Score, $cardsChosen;
 
-if ($player1Score < 14) {
+    // Deal card for player 1 and add to score
     $cardSelected = array_rand($deck);
-//    echo "Player 1 card: $cardSelected (value $deck[$cardSelected])<br>";
     $player1Score += $deck[$cardSelected];
     $player1Cards[] = $deck[$cardSelected];
     $cardsChosen[] = $cardSelected;
     array_splice($deck, intval($cardSelected), 1);
-}
 
-if ($player2Score < 14) {
+    // Deal card for player 2 and add to score
     $cardSelected = array_rand($deck);
-//    echo "Player 2 card: $cardSelected (value $deck[$cardSelected])<br>";
     $player2Score += $deck[$cardSelected];
     $player2Cards[] = $deck[$cardSelected];
     $cardsChosen[] = $cardSelected;
     array_splice($deck, intval($cardSelected), 1);
 }
 
-if ($player1Score > 21) {
-    if (null !== array_search(11, $player1Cards)) {
-        $player1Score -= 10;
-    }
-}
+function check_for_aces($score, $cards) {
 
-if ($player2Score > 21) {
-    if (null !== array_search(11, $player2Cards)) {
-        $player2Score -= 10;
+    // Decrease score by 10 if bust with an ace
+    if (null !== array_search(11, $cards)) {
+        $aceCount = count(array_keys($cards, 11, true));
+        for ($i = 0; $i < $aceCount; $i++) {
+            $score -= 10;
+            if ($score <= 21) {
+                return $score;
+            }
+        }
     }
+    return $score;
 }
 
 function get_winner($p1score, $p2score) {
@@ -191,56 +177,79 @@ function get_winner($p1score, $p2score) {
     }
 }
 
+
+
+if (isset($_POST['deal'])) {
+    while ($player1Score < 18 && $player2Score < 18) {
+        deal_card();
+        if ($player1Score > 21) {
+            $player1Score = check_for_aces($player1Score, $player1Cards);
+        }
+        if ($player2Score > 21) {
+            $player2Score = check_for_aces($player2Score, $player2Cards);
+        }
+    }
+}
+
 ?>
 
-<body>
-    <div id='container'>
-        <div class='player'>
-            <h1>Player 1</h1>
-            <div class='card_container'>
-                <div class='card'>
-                    <img src='media/<?php echo $images[$cardsChosen[0]];?>' alt='$cardsChosen[0]'>
+    <body>
+        <form method='post'>
+            <input id='button' type='submit' name='deal' value='Deal'>
+        </form>
+        <div id='container'>
+            <div class='player'>
+                <h1>Player 1</h1>
+                <div class='card_container'>
+                    <?php foreach (array_keys($cardsChosen) as $key) {
+                        if ($key % 2 === 0) {
+                            echo "
+                                <div class='card'>
+                                    <img src='media/{$images[$cardsChosen[$key]]}' alt='{$cardsChosen[$key]}'>
+                                </div>
+                            ";
+                        }
+                    } ?>
                 </div>
-                <div class='card'>
-                    <img src='media/<?php echo $images[$cardsChosen[2]];?>' alt='$cardsChosen[0]'>
+                <div class='player_score'>
+                    <?php
+                    if ($player1Score !== 0) {
+                        echo "<h2>Score: $player1Score</h2>";
+                    }
+                    ?>
                 </div>
-                <div class='card'>
-                    <?php if (array_key_exists(4, $cardsChosen)) {
-                        echo "<img src='media/{$images[$cardsChosen[4]]}' alt='{$cardsChosen[4]}'>";
-                    }?>
+            </div>
+            <div class='player'>
+                <h1>Player 2</h1>
+                <div class='card_container'>
+                    <?php foreach (array_keys($cardsChosen) as $key) {
+                        if ($key % 2 !== 0) {
+                            echo "
+                                <div class='card'>
+                                    <img src='media/{$images[$cardsChosen[$key]]}' alt='{$cardsChosen[$key]}'>
+                                </div>
+                            ";
+                        }
+                    } ?>
+                </div>
+                <div class='player_score'>
+                    <?php
+                    if ($player1Score !== 0) {
+                        echo "<h2>Score: $player2Score</h2>";
+                    }
+                    ?>
                 </div>
             </div>
         </div>
-        <div class='player'>
-            <h1>Player 2</h1>
-            <div class='card_container'>
-                <div class='card'>
-                    <img src='media/<?php echo $images[$cardsChosen[1]];?>'>
-                </div>
-                <div class='card'>
-                    <img src='media/<?php echo $images[$cardsChosen[3]];?>'>
-                </div>
-                <div class='card'>
-                    <?php if (array_key_exists(5, $cardsChosen)) {
-                        echo "<img src='media/{$images[$cardsChosen[5]]}' alt='{$cardsChosen[5]}'>";
-                    }?>
-                </div>
-            </div>
+        <div id='winner'>
+            <h1>
+                <?php
+                    if (!empty($cardsChosen)) {
+                        get_winner($player1Score, $player2Score);
+                    }
+                ?>
+            </h1>
         </div>
-    </div>
-    <div>
-        <forn action
-    </div>
-    <div id='winner'>
-        <h1>
-            <?php
-    //              echo "Player 1 score: $player1Score<br>";
-    //              echo "Player 2 score: $player2Score<br>";
-    //              echo "<br>";
-                get_winner($player1Score, $player2Score);
-            ?>
-        </h1>
-    </div>
-</body>
+    </body>
 
 </html>

@@ -24,3 +24,12 @@ Rules
     A player loses if the total of their two cards is greater than 21
     A player wins if their score is higher than the other player's
     Ace can be 1 or 11 (NTH)
+
+
+Function logic
+
+Whilst players are not bust
+    deal card
+    check if over 21
+        if so, check for aces
+            if so, subtract 10
