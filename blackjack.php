@@ -122,32 +122,52 @@ $deck = [
 ];
 
 $players = ['p1' => 'Player 1', 'p2' => 'Player 2'];
-$cardValues = [];
-$scores = [];
-$cards = [];
 
 /**
- * @param $score
- * @param $deck
- * @param $card
+ * Creates empty array of player's scores
  *
- * @return mixed
+ * @param $players
+ *
+ * @return int[]
  */
-function increase_score($score, $deck, $card) {
-    // Adds card value to player's score
-    return $score + $deck[$card];
+function initialise_scores($players) {
+    foreach(array_keys($players) as $playerKey) {
+        $scores[$playerKey] = 0;
+    }
+    return $scores;
 }
 
 /**
- * Removes card from deck
+ * Creates empty multi-dimensional array of card values
  *
- * @param $deck
- * @param $card
+ * @param $players
+ *                Player's array
  *
- * @return array
+ * @return mixed
+ *              Empty array of card values
  */
-function update_deck($deck, $card) {
-    return array_splice($deck, intval($card), 1);
+function initialise_cardValues($players) {
+    foreach(array_keys($players) as $playerKey) {
+        $cardValues[$playerKey] = [];
+    }
+    return $cardValues;
+}
+
+/**
+ * Adds card value to player's score
+ *
+ * @param int    $score
+ *                     Player's current score
+ * @param array  $deck
+ *                    Deck array
+ * @param string $card
+ *                    Selected card key
+ *
+ * @return int|mixed
+ *                  Returns new score
+ */
+function increase_score(int $score, array $deck, string $card) :int {
+    return $score + $deck[$card];
 }
 
 /**
@@ -160,7 +180,7 @@ function update_deck($deck, $card) {
  * @return int
  *            Returns player's new score
  */
-function check_for_aces($score, $cards) {
+function check_for_aces(int $score, array $cards) {
 
     if (null !== array_search(11, $cards)) {
         $aceCount = count(array_keys($cards, 11, true));
@@ -178,7 +198,7 @@ function check_for_aces($score, $cards) {
  * Checks relative scores and displays the winner
  *
  * @param $p1score
- *                 Score for player 1
+ *                Score for player 1
  * @param $p2score
  *                Score for player 2
  */
@@ -200,32 +220,33 @@ function get_winner($p1score, $p2score) {
 
 // Performed on selection of deal button
 if (isset($_POST['deal'])) {
+    // Initialise scores and card values
+    $scores = initialise_scores($players);
+    $cardValues = initialise_cardValues($players);
     // Stops game when either player reaches 18
     while (true) {
-        foreach ($scores as $score) {
-            if ($score > 18) {
-                break;
-            }
-        }
         foreach ($players as $player) {
             // Identify player key for use in other arrays
             $playerKey = array_search($player, $players);
-            // Initialise player score
-            $scores[$playerKey] = 0;
             // Deal one card
             $cardSelected = array_rand($deck);
             // Add card to score
             $scores[$playerKey] = increase_score($scores[$playerKey], $deck, $cardSelected);
             // Store selected card value for player
-            $cardValues[$playerKey] =  $deck[$cardSelected];
+            array_push($cardValues[$playerKey],$deck[$cardSelected]);
             // Store card key for image reference
-            $cardsChosen[] = $cardSelected;
+            $cards[] = $cardSelected;
             // Remove selected card from deck
-            $deck = update_deck($deck, $cardSelected);
+            array_splice($deck, intval($cardSelected), 1);
+            if ($scores[$playerKey] > 21) {
+                // Check if score can be reduced
+                $scores[$playerKey] = check_for_aces($scores[$playerKey], $cardValues[$playerKey]);
+            }
         }
-        if ($scores[$playerKey] > 21) {
-            // Check if score can be reduced
-            $scores[$playerKey] = check_for_aces($scores[$playerKey], $cardValues[$playerKey]);
+        foreach ($scores as $score) {
+            if ($score >= 18) {
+                break 2;
+            }
         }
     }
 }
@@ -242,22 +263,24 @@ if (isset($_POST['deal'])) {
                 <div class='card_container'>
                     <?php
                         // Creates div with image for even keys in selected cards array
-                        foreach (array_keys($cards) as $key) {
-                            if ($key % 2 === 0) {
-                                echo "
-                                    <div class='card'>
-                                        <img src='media/{$images[$cards[$key]]}' alt='{$cards[$key]}'>
-                                    </div>
-                                ";
+                        if (isset($cards)) {
+                            foreach (array_keys($cards) as $key) {
+                                if ($key % 2 === 0) {
+                                    echo "
+                                        <div class='card'>
+                                            <img src='media/{$images[$cards[$key]]}' alt='{$cards[$key]}'>
+                                        </div>
+                                    ";
+                                }
                             }
                         }
                     ?>
                 </div>
                 <div class='player_score'>
                     <?php
-                    if ($scores['p1'] !== 0) {
-                        echo "<h2>Score: $scores[p1]</h2>";
-                    }
+                        if (isset($scores['p1'])) {
+                            echo "<h2>Score: $scores[p1]</h2>";
+                        }
                     ?>
                 </div>
             </div>
@@ -266,20 +289,22 @@ if (isset($_POST['deal'])) {
                 <div class='card_container'>
                     <?php
                         // Creates div with image for even keys in selected cards array
-                        foreach (array_keys($cards) as $key) {
-                            if ($key % 2 !== 0) {
-                                echo "
-                                    <div class='card'>
-                                        <img src='media/{$images[$cards[$key]]}' alt='{$cards[$key]}'>
-                                    </div>
-                                ";
+                        if (isset($cards)) {
+                            foreach (array_keys($cards) as $key) {
+                                if ($key % 2 !== 0) {
+                                    echo "
+                                        <div class='card'>
+                                            <img src='media/{$images[$cards[$key]]}' alt='{$cards[$key]}'>
+                                        </div>
+                                    ";
+                                }
                             }
                         }
                     ?>
                 </div>
                 <div class='player_score'>
                     <?php
-                    if ($scores['p2'] !== 0) {
+                    if (isset($scores['p2'])) {
                         echo "<h2>Score: $scores[p2]</h2>";
                     }
                     ?>
@@ -290,7 +315,7 @@ if (isset($_POST['deal'])) {
             <h1>
                 <?php
                     // Runs winner function if cards have been dealt
-                    if (!empty($cards)) {
+                    if (!empty($cards) && isset($scores)) {
                         get_winner($scores['p1'], $scores['p2']);
                     }
                 ?>
