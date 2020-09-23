@@ -31,7 +31,7 @@ $players = ['p1' => 'Player 1', 'p2' => 'Player 2'];
  * @return mixed
  *              Returns complete deck
  */
-function build_deck($suits, $values) {
+function build_deck(array $suits, array $values) :array {
     foreach ($suits as $suit) {
         foreach (array_keys($values) as $valueKey) {
             $deck["$valueKey of $suit"] = [$values[$valueKey], "$valueKey$suit.svg"];

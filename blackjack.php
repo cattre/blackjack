@@ -20,12 +20,12 @@ require 'functions.php';
                 <div class='card_container'>
                     <?php
                         // Creates div with image for even keys in selected cards array
-                        if (isset($cards)) {
-                            foreach (array_keys($cards) as $key) {
-                                if ($key % 2 === 0) {
+                        if (isset($cards) && isset($deck)) {
+                            foreach ($cards as $card) {
+                                if ($card % 2 === 0) {
                                     echo "
                                         <div class='card'>
-                                            <img src='media/{$deck[$cards[$key]][1]}' alt='{$cards[$key]}'>
+                                            <img src='media/{$deck[$card][1]}' alt='{$card}'>
                                         </div>
                                     ";
                                 }
@@ -46,12 +46,12 @@ require 'functions.php';
                 <div class='card_container'>
                     <?php
                         // Creates div with image for even keys in selected cards array
-                        if (isset($cards)) {
-                            foreach (array_keys($cards) as $key) {
-                                if ($key % 2 !== 0) {
+                        if (isset($cards) && isset($deck)) {
+                            foreach ($cards as $card) {
+                                if ($card % 2 !== 0) {
                                     echo "
                                         <div class='card'>
-                                            <img src='media/{$deck[$cards[$key]][1]}' alt='{$cards[$key]}'>
+                                            <img src='media/{$deck[$card][1]}' alt='{$card}'>
                                         </div>
                                     ";
                                 }
