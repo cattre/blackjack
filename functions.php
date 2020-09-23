@@ -32,9 +32,10 @@ $players = ['p1' => 'Player 1', 'p2' => 'Player 2'];
  *              Returns complete deck
  */
 function build_deck(array $suits, array $values) :array {
+    $deck = [];
     foreach ($suits as $suit) {
         foreach (array_keys($values) as $valueKey) {
-            $deck["$valueKey of $suit"] = [$values[$valueKey], "$valueKey$suit.svg"];
+            $deck["$valueKey of $suit"] = ['value' => $values[$valueKey], 'image' => "$valueKey$suit.svg"];
         }
     }
     return $deck;
@@ -48,6 +49,7 @@ function build_deck(array $suits, array $values) :array {
  * @return int[]
  */
 function initialise_scores($players) {
+    $scores = [];
     foreach(array_keys($players) as $playerKey) {
         $scores[$playerKey] = 0;
     }
@@ -64,6 +66,7 @@ function initialise_scores($players) {
  *              Empty array of card values
  */
 function initialise_cardValues($players) {
+    $cardValues = [];
     foreach(array_keys($players) as $playerKey) {
         $cardValues[$playerKey] = [];
     }
@@ -84,7 +87,7 @@ function initialise_cardValues($players) {
  *                  Returns new score
  */
 function increase_score(int $score, array $deck, string $card) :int {
-    return $score + $deck[$card][0];
+    return $score + $deck[$card]['value'];
 }
 
 /**
@@ -142,26 +145,26 @@ if (isset($_POST['deal'])) {
     // Initialise scores and card values
     $scores = initialise_scores($players);
     $cardValues = initialise_cardValues($players);
-    // Stops game when either player reaches 18
     while (true) {
         foreach ($players as $player) {
             // Identify player key for use in other arrays
             $playerKey = array_search($player, $players);
             // Deal one card
             $cardSelected = array_rand($deck);
-            // Add card to score
+            // Add card value to score
             $scores[$playerKey] = increase_score($scores[$playerKey], $deck, $cardSelected);
             // Store selected card value for player
             array_push($cardValues[$playerKey],$deck[$cardSelected]);
             // Store card key for image reference
             $cards[] = $cardSelected;
             // Remove selected card from deck
-            array_splice($deck, intval($cardSelected), 1);
+            unset($deck[$cardSelected]);
+            // Check if score can be reduced
             if ($scores[$playerKey] > 21) {
-                // Check if score can be reduced
                 $scores[$playerKey] = check_for_aces($scores[$playerKey], $cardValues[$playerKey]);
             }
         }
+        // Stops game when either player reaches 18
         foreach ($scores as $score) {
             if ($score >= 18) {
                 break 2;
