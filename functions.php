@@ -48,7 +48,7 @@ function build_deck(array $suits, array $values) :array {
  *
  * @return int[]
  */
-function initialise_scores($players) {
+function initialise_scores(array $players) :array {
     $scores = [];
     foreach(array_keys($players) as $playerKey) {
         $scores[$playerKey] = 0;
@@ -65,7 +65,7 @@ function initialise_scores($players) {
  * @return mixed
  *              Empty array of card values
  */
-function initialise_cardValues($players) {
+function initialise_cardValues(array $players) :array {
     $cardValues = [];
     foreach(array_keys($players) as $playerKey) {
         $cardValues[$playerKey] = [];
@@ -100,7 +100,7 @@ function increase_score(int $score, array $deck, string $card) :int {
  * @return int
  *            Returns player's new score
  */
-function check_for_aces(int $score, array $cards) {
+function check_for_aces(int $score, array $cards) :int {
 
     if (null !== array_search(11, $cards)) {
         $aceCount = count(array_keys($cards, 11, true));
@@ -122,7 +122,7 @@ function check_for_aces(int $score, array $cards) {
  * @param $p2score
  *                Score for player 2
  */
-function get_winner($p1score, $p2score) {
+function get_winner(int $p1score, int $p2score) {
     if ($p1score > 21 && $p2score > 21) {
         echo 'Both players lose!';
     } else if ($p1score <= 21 && $p2score > 21) {
