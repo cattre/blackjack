@@ -18,7 +18,27 @@ $values = [
     'King' => 10
 ];
 
-$players = ['p1' => 'Player 1', 'p2' => 'Player 2'];
+// Default number of players
+$numPlayers = 2;
+
+$allowedPlayers = [2, 3, 4];
+
+/**
+ * Build players array based on number of players
+ *
+ * @param int $numPlayers
+ *                       Number of players
+ *
+ * @return array
+ *              Players array
+ */
+function initialise_players(int $numPlayers) :array {
+    $players = [];
+    for ($i = 1; $i <= $numPlayers; $i++) {
+        $players["p$i"] = "Player $i";
+    }
+    return $players;
+}
 
 /**
  * Builds deck with values and image paths
@@ -65,12 +85,12 @@ function initialise_scores(array $players) :array {
  * @return mixed
  *              Empty array of card values
  */
-function initialise_cardValues(array $players) :array {
-    $cardValues = [];
+function initialise_cards(array $players) :array {
+    $cards = [];
     foreach(array_keys($players) as $playerKey) {
-        $cardValues[$playerKey] = [];
+        $cards[$playerKey] = ['images' => [], 'values' => []];
     }
-    return $cardValues;
+    return $cards;
 }
 
 /**
@@ -95,15 +115,15 @@ function increase_score(int $score, array $deck, string $card) :int {
  *
  * @param $score
  *              Player's score
- * @param $cards
- *              Player's dealt cards array
+ * @param $values
+ *              Values array from dealt cards array
  * @return int
  *            Returns player's new score
  */
-function check_for_aces(int $score, array $cards) :int {
+function check_for_aces(int $score, array $values) :int {
 
-    if (null !== array_search(11, $cards)) {
-        $aceCount = count(array_keys($cards, 11, true));
+    if (null !== array_search(11, $values)) {
+        $aceCount = count(array_keys($values, 11, true));
         for ($i = 0; $i < $aceCount; $i++) {
             $score -= 10;
             if ($score <= 21) {
@@ -117,12 +137,11 @@ function check_for_aces(int $score, array $cards) :int {
 /**
  * Checks relative scores and displays the winner
  *
- * @param $p1score
- *                Score for player 1
- * @param $p2score
- *                Score for player 2
+ * @param $scores
+ *                Scores array
  */
-function get_winner(int $p1score, int $p2score) {
+function get_winner(array $players, array $scores) {
+    foreach ($scores as $score) {
     if ($p1score > 21 && $p2score > 21) {
         echo 'Both players lose!';
     } else if ($p1score <= 21 && $p2score > 21) {
@@ -140,11 +159,14 @@ function get_winner(int $p1score, int $p2score) {
 
 // Performed on selection of deal button
 if (isset($_POST['deal'])) {
+    // Initialise players
+    $numPlayers = $_POST['players'];
+    $players = initialise_players($numPlayers);
     // Builds deck
     $deck = build_deck($suits, $values);
     // Initialise scores and card values
     $scores = initialise_scores($players);
-    $cardValues = initialise_cardValues($players);
+    $cards = initialise_cards($players);
     while (true) {
         foreach ($players as $player) {
             // Identify player key for use in other arrays
@@ -154,14 +176,14 @@ if (isset($_POST['deal'])) {
             // Add card value to score
             $scores[$playerKey] = increase_score($scores[$playerKey], $deck, $cardSelected);
             // Store selected card value for player
-            array_push($cardValues[$playerKey],$deck[$cardSelected]);
-            // Store card key for image reference
-            $cards[] = $cardSelected;
+            array_push($cards[$playerKey]['values'], $deck[$cardSelected]['value']);
+            // Store card image
+            array_push($cards[$playerKey]['images'], $deck[$cardSelected]['image']);
             // Remove selected card from deck
             unset($deck[$cardSelected]);
             // Check if score can be reduced
             if ($scores[$playerKey] > 21) {
-                $scores[$playerKey] = check_for_aces($scores[$playerKey], $cardValues[$playerKey]);
+                $scores[$playerKey] = check_for_aces($scores[$playerKey], $cards[$playerKey]['values']);
             }
         }
         // Stops game when either player reaches 18

@@ -7,75 +7,65 @@ require 'functions.php';
     <head>
         <title>Blackjack</title>
         <link rel='stylesheet' type= 'text/css' href='blackjack.css'>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta charset="UTF-8">
+        <meta name='viewport' content='width=device-width, initial-scale=1'>
+        <meta charset='UTF-8'>
     </head>
     <body>
         <form method='post'>
+            <label>Players <select name='players'>
+                <?php if (isset($numPlayers) && isset($allowedPlayers)) {
+                    foreach ($allowedPlayers as $playerNum) {
+                        if ($numPlayers == $playerNum) {
+                            echo "<option selected='selected' value=$playerNum>$playerNum</option>";
+                        } else {
+                            echo "<option value=$playerNum>$playerNum</option>";
+                        }
+                    }
+                } ?>
+            </select></label>
             <input id='button' type='submit' name='deal' value='Deal'>
         </form>
+        <?php if(isset($players)) { ?>
         <div id='container'>
+            <?php
+                    foreach (array_keys($players) as $playerKey):
+            ?>
             <div class='player'>
-                <h1>Player 1</h1>
+                <h1><?php $players[$playerKey] ?></h1>
                 <div class='card_container'>
                     <?php
                         // Creates div with image for even keys in selected cards array
-                        $deck = build_deck($suits, $values);
-                        if (isset($cards)) {
-                            foreach (array_keys($cards) as $key) {
-                                if ($key % 2 === 0) {
+                        if (isset($suits) && isset($values)) {
+                            $deck = build_deck($suits, $values);
+                        }
+                        if (isset($cards) && isset($deck)) {
+                            foreach ($cards[$playerKey]['images'] as $card) {
                                     echo "
                                         <div class='card'>
-                                            <img src='media/{$deck[$cards[$key]]['image']}' alt='{$cards[$key]}'>
+                                            <img src='media/{$card}' alt='{$card}'>
                                         </div>
                                     ";
                                 }
                             }
-                        }
                     ?>
                 </div>
                 <div class='player_score'>
                     <?php
-                        if (isset($scores['p1'])) {
-                            echo "<h2>Score: $scores[p1]</h2>";
+                        if (isset($scores)) {
+                            echo "<h2>Score: $scores[$playerKey]</h2>";
                         }
                     ?>
                 </div>
             </div>
-            <div class='player'>
-                <h1>Player 2</h1>
-                <div class='card_container'>
-                    <?php
-                        // Creates div with image for even keys in selected cards array
-                        $deck = build_deck($suits, $values);
-                        if (isset($cards)) {
-                            foreach (array_keys($cards) as $key) {
-                                if ($key % 2 !== 0) {
-                                    echo "
-                                        <div class='card'>
-                                            <img src='media/{$deck[$cards[$key]]['image']}' alt='{$cards[$key]}'>
-                                        </div>
-                                    ";
-                                }
-                            }
-                        }
-                    ?>
-                </div>
-                <div class='player_score'>
-                    <?php
-                    if (isset($scores['p2'])) {
-                        echo "<h2>Score: $scores[p2]</h2>";
-                    }
-                    ?>
-                </div>
-            </div>
+        <?php endforeach; ?>
         </div>
+        <?php } ?>
         <div id='winner'>
             <h1>
                 <?php
                     // Runs winner function if cards have been dealt
-                    if (!empty($cards) && isset($scores)) {
-                        get_winner($scores['p1'], $scores['p2']);
+                    if (!empty($cards) && isset($scores) && isset($players)) {
+                        get_winner($players, $scores);
                     }
                 ?>
             </h1>
