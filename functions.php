@@ -3,7 +3,7 @@
 // Array of card images
 $suits = ['Spades', 'Clubs', 'Hearts', 'Diamonds'];
 $values = [
-    'Ace' => 1,
+    'Ace' => 11,
     '2' => 2,
     '3' => 3,
     '4' => 4,
@@ -213,4 +213,6 @@ if (isset($_POST['deal'])) {
             }
         }
     }
+    // Runs winner function if cards have been dealt
+    $winner = get_winner($players, $scores);
 }

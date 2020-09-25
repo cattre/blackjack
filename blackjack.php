@@ -63,9 +63,8 @@ require 'functions.php';
         <div id='winner'>
             <h1>
                 <?php
-                    // Runs winner function if cards have been dealt
-                    if (!empty($cards) && isset($scores) && isset($players)) {
-                        echo get_winner($players, $scores);
+                    if(isset($winner)) {
+                        echo $winner;
                     }
                 ?>
             </h1>
