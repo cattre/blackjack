@@ -135,12 +135,15 @@ function check_for_aces(int $score, array $values) :int {
 }
 
 /**
- * Checks relative scores and displays the winner
+ * Checks relative scores of all players to decide a winner
  *
  * @param array $players
  *                      Players array
  * @param array $scores
  *                      Scores array
+ *
+ * @return string
+ *               Returns winner(s)
  */
 function get_winner(array $players, array $scores) :string {
     $winners = ['winningScore' => 0, 'players' => []];
@@ -153,10 +156,6 @@ function get_winner(array $players, array $scores) :string {
             }
         }
     }
-//    echo'<pre>';
-//    var_dump($winners);
-////        echo $scores[$playerKey];
-//    echo'</pre>';
 
     $numWinners = count($winners['players']);
 
