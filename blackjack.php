@@ -65,7 +65,7 @@ require 'functions.php';
                 <?php
                     // Runs winner function if cards have been dealt
                     if (!empty($cards) && isset($scores) && isset($players)) {
-                        get_winner($players, $scores);
+                        echo get_winner($players, $scores);
                     }
                 ?>
             </h1>

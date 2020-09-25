@@ -137,23 +137,44 @@ function check_for_aces(int $score, array $values) :int {
 /**
  * Checks relative scores and displays the winner
  *
- * @param $scores
- *                Scores array
+ * @param array $players
+ *                      Players array
+ * @param array $scores
+ *                      Scores array
  */
-function get_winner(array $players, array $scores) {
-    foreach ($scores as $score) {
-    if ($p1score > 21 && $p2score > 21) {
-        echo 'Both players lose!';
-    } else if ($p1score <= 21 && $p2score > 21) {
-        echo 'Player 1 wins!';
-    } else if ($p1score > 21 && $p2score <= 21) {
-        echo 'Player 2 wins!';
-    } else if ($p1score === $p2score) {
-        echo 'Draw!';
-    } else if ($p1score > $p2score) {
-        echo 'Player 1 wins!';
-    } else if ($p1score < $p2score) {
-        echo 'Player 2 wins!';
+function get_winner(array $players, array $scores) :string {
+    $winners = ['winningScore' => 0, 'players' => []];
+    foreach (array_keys($players) as $playerKey) {
+        if ($scores[$playerKey] <= 21) {
+            if ($winners['winningScore'] === 0 || $scores[$playerKey] > $winners['winningScore']) {
+                $winners = ['winningScore' => $scores[$playerKey], 'players' => [$playerKey]];
+            } else if ($scores[$playerKey] === $winners['winningScore']) {
+                array_push($winners['players'], $playerKey);
+            }
+        }
+    }
+//    echo'<pre>';
+//    var_dump($winners);
+////        echo $scores[$playerKey];
+//    echo'</pre>';
+
+    $numWinners = count($winners['players']);
+
+    switch (true) {
+        case empty($winners['players']) :
+            return "All players lose!";
+        case $numWinners === 1 :
+            return "{$players[$winners['players'][0]]} wins!";
+        case $numWinners === 2 :
+            return "{$players[$winners['players'][0]]} and {$players[$winners['players'][1]]} draw!";
+        case $numWinners > 2 :
+            $output = null;
+            for ($i = 0; $i < $numWinners - 1; $i++) {
+                $output = "{$players[$winners['players'][$i]]},";
+            }
+            return "$output, and {$players[$winners['players'][$numWinners - 1]]} all draw!";
+        default :
+            return "Unexpected outcome";
     }
 }
 
