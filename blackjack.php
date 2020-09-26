@@ -13,7 +13,7 @@ require 'functions.php';
     <body>
         <form id='dealButtons' method='post'>
             <label id='playersSelect'>Players<select name='players'>
-                <?php if (isset($_SESSION['numPlayers']) && isset($allowedPlayers)) {
+                <?php if (isset($allowedPlayers)) {
                     foreach ($allowedPlayers as $playerNum) {
                         if ($_SESSION['numPlayers'] == $playerNum) {
                             echo "<option selected='selected' value={$_SESSION['numPlayers']}>{$_SESSION['numPlayers']}</option>";

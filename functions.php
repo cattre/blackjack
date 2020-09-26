@@ -231,6 +231,14 @@ if (isset($_POST['deal'])) {
             if ($_SESSION['scores'][$playerKey] > 21) {
                 $_SESSION['scores'][$playerKey] = check_for_aces($_SESSION['scores'][$playerKey], $_SESSION['cards'][$playerKey]['values']);
             }
+            if ($_SESSION['scores'][$playerKey] === 21) {
+                array_splice($_SESSION['activePlayers'], array_search($playerKey, $_SESSION['activePlayers']), 1);
+            }
+            // Run winner function if no more active players
+            if (count($_SESSION['activePlayers']) < 2) {
+                $_SESSION['activePlayers'] = [];
+                $winner = get_winner($_SESSION['players'], $_SESSION['scores']);
+            }
         }
     }
 }
@@ -257,7 +265,8 @@ if (isset($_POST['twist'])) {
         array_splice($_SESSION['activePlayers'], 0, 1);
     }
     // Run winner function if no more active players
-    if (count($_SESSION['activePlayers']) === 0) {
+    if (count($_SESSION['activePlayers']) < 2) {
+        $_SESSION['activePlayers'] = [];
         $winner = get_winner($_SESSION['players'], $_SESSION['scores']);
     }
 }
