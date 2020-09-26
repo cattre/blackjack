@@ -275,12 +275,13 @@ if (isset($_POST['stick'])) {
 
 // Executed on selection of quick deal button
 if (isset($_POST['quickDeal'])) {
+    $_SESSION['activePlayers'] = [];
     while (true) {
         foreach (array_keys($_SESSION['players']) as $playerKey) {
             // Deal one card
             $cardSelected = array_rand($_SESSION['deck']);
             // Add card value to score
-            $scores[$playerKey] = increase_score($_SESSION['scores'][$playerKey], $_SESSION['deck'], $cardSelected);
+            $_SESSION['scores'][$playerKey] = increase_score($_SESSION['scores'][$playerKey], $_SESSION['deck'], $cardSelected);
             // Store selected card value for player
             array_push($_SESSION['cards'][$playerKey]['values'], $_SESSION['deck'][$cardSelected]['value']);
             // Store card image
@@ -291,11 +292,11 @@ if (isset($_POST['quickDeal'])) {
             if ($_SESSION['scores'][$playerKey] > 21) {
                 $_SESSION['scores'][$playerKey] = check_for_aces($_SESSION['scores'][$playerKey], $_SESSION['cards'][$playerKey]['values']);
             }
-            // Stops game when either player reaches 18
-            foreach ($_SESSION['scores'] as $score) {
-                if ($score >= 18) {
-                    break 3;
-                }
+        }
+        // Stops game when any player reaches 18
+        foreach ($_SESSION['scores'] as $score) {
+            if ($score >= 18) {
+                break 2;
             }
         }
     }
