@@ -11,7 +11,7 @@ require 'functions.php';
         <meta charset='UTF-8'>
     </head>
     <body>
-        <form method='post'>
+        <form id='newGame' method='post'>
             <label>Players <select name='players'>
                 <?php if (isset($numPlayers) && isset($allowedPlayers)) {
                     foreach ($allowedPlayers as $playerNum) {
@@ -23,7 +23,8 @@ require 'functions.php';
                     }
                 } ?>
             </select></label>
-            <input id='button' type='submit' name='deal' value='Deal'>
+            <input id='deal' type='submit' name='deal' value='Deal Cards'>
+            <input id='quickDeal' type='submit' name='quickDeal' value='Quick Deal!'>
         </form>
         <?php if(isset($players)) { ?>
         <div id='container'>
@@ -55,6 +56,14 @@ require 'functions.php';
                             echo "<h2>Score: $scores[$playerKey]</h2>";
                         }
                     ?>
+                </div>
+                <div>
+                    <?php if (isset($activePlayers) && $activePlayers[0] === $playerKey) { ?>
+                        <form method='post'>
+                            <input id='stick' type='submit' name='stick' value='Stick'>
+                            <input id='twist' type='submit' name='twist' value='Twist'>
+                        </form>
+                    <?php } ?>
                 </div>
             </div>
         <?php endforeach; ?>

@@ -94,6 +94,23 @@ function initialise_cards(array $players) :array {
 }
 
 /**
+ * Creates empty array to store current game status for each player
+ *
+ * @param array $players
+ *                      Player's array
+ *
+ * @return array
+ *              Returns stick choices array
+ */
+function initialise_activePlayers(array $players) :array {
+    $activePlayers = [];
+    foreach(array_keys($players) as $playerKey) {
+        $activePlayers[] = $playerKey;
+    }
+    return $activePlayers;
+}
+
+/**
  * Adds card value to player's score
  *
  * @param int    $score
@@ -135,12 +152,15 @@ function check_for_aces(int $score, array $values) :int {
 }
 
 /**
- * Checks relative scores and displays the winner
+ * Checks relative scores to identify the winner(s)
  *
  * @param array $players
  *                      Players array
  * @param array $scores
  *                      Scores array
+ *
+ * @return string
+ *               Returns winner in formatted string
  */
 function get_winner(array $players, array $scores) :string {
     $winners = ['winningScore' => 0, 'players' => []];
@@ -153,19 +173,19 @@ function get_winner(array $players, array $scores) :string {
             }
         }
     }
-//    echo'<pre>';
-//    var_dump($winners);
-////        echo $scores[$playerKey];
-//    echo'</pre>';
 
     $numWinners = count($winners['players']);
 
     switch (true) {
         case empty($winners['players']) :
             return "All players lose!";
+        case $numWinners === 2 && count($players) === 2 :
+            return "Both players draw!";
+        case $numWinners === count($players) :
+            return "All players draw!";
         case $numWinners === 1 :
             return "{$players[$winners['players'][0]]} wins!";
-        case $numWinners === 2 :
+        case $numWinners === 2 && count($players) > 2:
             return "{$players[$winners['players'][0]]} and {$players[$winners['players'][1]]} draw!";
         case $numWinners > 2 :
             $output = null;
@@ -178,8 +198,8 @@ function get_winner(array $players, array $scores) :string {
     }
 }
 
-// Performed on selection of deal button
-if (isset($_POST['deal'])) {
+// Initialise game
+if (isset($_POST['deal']) || isset($_POST['quickDeal'])) {
     // Initialise players
     $numPlayers = $_POST['players'];
     $players = initialise_players($numPlayers);
@@ -188,32 +208,99 @@ if (isset($_POST['deal'])) {
     // Initialise scores and card values
     $scores = initialise_scores($players);
     $cards = initialise_cards($players);
-    while (true) {
-        foreach ($players as $player) {
-            // Identify player key for use in other arrays
-            $playerKey = array_search($player, $players);
-            // Deal one card
-            $cardSelected = array_rand($deck);
-            // Add card value to score
-            $scores[$playerKey] = increase_score($scores[$playerKey], $deck, $cardSelected);
-            // Store selected card value for player
-            array_push($cards[$playerKey]['values'], $deck[$cardSelected]['value']);
-            // Store card image
-            array_push($cards[$playerKey]['images'], $deck[$cardSelected]['image']);
-            // Remove selected card from deck
-            unset($deck[$cardSelected]);
-            // Check if score can be reduced
-            if ($scores[$playerKey] > 21) {
-                $scores[$playerKey] = check_for_aces($scores[$playerKey], $cards[$playerKey]['values']);
-            }
-        }
-        // Stops game when either player reaches 18
-        foreach ($scores as $score) {
-            if ($score >= 18) {
-                break 2;
+
+    // Executed on selection of deal button
+    if (isset($_POST['deal'])) {
+        $gameType = 'normal';
+        $activePlayers = initialise_activePlayers($players);
+        for ($i = 0; $i < 2; $i++) {
+            foreach (array_keys($players) as $playerKey) {
+                // Deal one card
+                $cardSelected = array_rand($deck);
+                // Add card value to score
+                $scores[$playerKey] = increase_score($scores[$playerKey], $deck, $cardSelected);
+                // Store selected card value for player
+                array_push($cards[$playerKey]['values'], $deck[$cardSelected]['value']);
+                // Store card image
+                array_push($cards[$playerKey]['images'], $deck[$cardSelected]['image']);
+                // Remove selected card from deck
+                unset($deck[$cardSelected]);
+                // Check if score can be reduced
+                if ($scores[$playerKey] > 21) {
+                    $scores[$playerKey] = check_for_aces($scores[$playerKey], $cards[$playerKey]['values']);
+                }
             }
         }
     }
-    // Runs winner function if cards have been dealt
-    $winner = get_winner($players, $scores);
+
+    // Executed on selection of quick deal button
+    if (isset($_POST['quickDeal'])) {
+        $gameType = 'quick';
+        while (true) {
+            foreach (array_keys($players) as $playerKey) {
+                // Deal one card
+                $cardSelected = array_rand($deck);
+                // Add card value to score
+                $scores[$playerKey] = increase_score($scores[$playerKey], $deck, $cardSelected);
+                // Store selected card value for player
+                array_push($cards[$playerKey]['values'], $deck[$cardSelected]['value']);
+                // Store card image
+                array_push($cards[$playerKey]['images'], $deck[$cardSelected]['image']);
+                // Remove selected card from deck
+                unset($deck[$cardSelected]);
+                // Check if score can be reduced
+                if ($scores[$playerKey] > 21) {
+                    $scores[$playerKey] = check_for_aces($scores[$playerKey], $cards[$playerKey]['values']);
+                }
+            }
+            // Stops game when either player reaches 18
+            foreach ($scores as $score) {
+                if ($score >= 18) {
+                    break 2;
+                }
+            }
+        }
+        // Runs winner function
+        $winner = get_winner($players, $scores);
+    }
 }
+
+//        while (count($activePlayers) > 0) {
+//            foreach (array_keys($players) as $playerKey) {
+//                if ($activePlayers[0] === $playerKey) {
+// Set stick/twist button visibility
+//                    $stickTwist = true;
+//                    while ($scores[$playerKey] < 21) {
+// Twist flow
+if (isset($_POST['twist'])) {
+    // Deal one card
+    $cardSelected = array_rand($deck);
+    // Add card value to score
+    $scores[$activePlayers[0]] = increase_score($scores[$activePlayers[0]], $deck, $cardSelected);
+    // Store selected card value for player
+    array_push($cards[$activePlayers[0]]['values'], $deck[$cardSelected]['value']);
+    // Store card image
+    array_push($cards[$activePlayers[0]]['images'], $deck[$cardSelected]['image']);
+    // Remove selected card from deck
+    unset($deck[$cardSelected]);
+    // Check if score can be reduced
+    if ($scores[$activePlayers[0]] > 21) {
+        $scores[$activePlayers[0]] = check_for_aces($scores[$activePlayers[0]], $cards[$activePlayers[0]]['values']);
+    }
+}
+// Stick flow
+if (isset($_POST['stick'])) {
+//                            $stickTwist = false;
+    array_splice($activePlayers, array_search($playerKey, $activePlayers), 1);
+}
+//                    }
+//                    $stickTwist = false;
+//                    array_splice($activePlayers, array_search($playerKey, $activePlayers), 1);
+//                } else {
+//                    $stickTwist = false;
+//                }
+//            }
+//        }
+//        // Runs winner function
+//        $winner = get_winner($players, $scores);
+//    }

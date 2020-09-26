@@ -33,3 +33,24 @@ Whilst players are not bust
     check if over 21
         if so, check for aces
             if so, subtract 10
+
+Multiple players
+
+Get number of players
+Display one card container for each player
+Deal cards for each player
+Store all scores
+For those with scores under 22, winner is the one with the highest score
+
+Stick/twist
+
+Deal two cards
+
+While more than one player score < 21
+    For each player
+        While score <= 21 and player has not stuck
+            Display twist/stick buttons
+            If twist
+                Deal another card
+            Else
+                Set stick
