@@ -94,6 +94,23 @@ function initialise_cards(array $players) :array {
 }
 
 /**
+ * Creates empty array to store current game status for each player
+ *
+ * @param array $players
+ *                      Player's array
+ *
+ * @return array
+ *              Returns stick choices array
+ */
+function initialise_activePlayers(array $players) :array {
+    $activePlayers = [];
+    foreach(array_keys($players) as $playerKey) {
+        $activePlayers[] = $playerKey;
+    }
+    return $activePlayers;
+}
+
+/**
  * Adds card value to player's score
  *
  * @param int    $score
@@ -135,7 +152,7 @@ function check_for_aces(int $score, array $values) :int {
 }
 
 /**
- * Checks relative scores of all players to decide a winner
+ * Checks relative scores of all players to identify the winner(s)
  *
  * @param array $players
  *                      Players array
@@ -162,9 +179,13 @@ function get_winner(array $players, array $scores) :string {
     switch (true) {
         case empty($winners['players']) :
             return "All players lose!";
+        case $numWinners === 2 && count($players) === 2 :
+            return "Both players draw!";
+        case $numWinners === count($players) :
+            return "All players draw!";
         case $numWinners === 1 :
             return "{$players[$winners['players'][0]]} wins!";
-        case $numWinners === 2 :
+        case $numWinners === 2 && count($players) > 2:
             return "{$players[$winners['players'][0]]} and {$players[$winners['players'][1]]} draw!";
         case $numWinners > 2 :
             $output = null;
@@ -177,42 +198,108 @@ function get_winner(array $players, array $scores) :string {
     }
 }
 
-// Performed on selection of deal button
-if (isset($_POST['deal'])) {
+
+// Initialise game
+if (isset($_POST['deal']) || isset($_POST['quickDeal'])) {
+    session_start();
     // Initialise players
-    $numPlayers = $_POST['players'];
-    $players = initialise_players($numPlayers);
+    $_SESSION['numPlayers'] = $_POST['players'];
+    $_SESSION['players'] = initialise_players($_SESSION['numPlayers']);
     // Builds deck
-    $deck = build_deck($suits, $values);
+    $_SESSION['deck'] = build_deck($suits, $values);
     // Initialise scores and card values
-    $scores = initialise_scores($players);
-    $cards = initialise_cards($players);
-    while (true) {
-        foreach ($players as $player) {
-            // Identify player key for use in other arrays
-            $playerKey = array_search($player, $players);
+    $_SESSION['scores'] = initialise_scores($_SESSION['players']);
+    $_SESSION['cards'] = initialise_cards($_SESSION['players']);
+}
+
+// Executed on selection of deal button
+if (isset($_POST['deal'])) {
+    $_SESSION['activePlayers'] = initialise_activePlayers($_SESSION['players']);
+    for ($i = 0; $i < 2; $i++) {
+        foreach (array_keys($_SESSION['players']) as $playerKey) {
             // Deal one card
-            $cardSelected = array_rand($deck);
+            $cardSelected = array_rand($_SESSION['deck']);
             // Add card value to score
-            $scores[$playerKey] = increase_score($scores[$playerKey], $deck, $cardSelected);
+            $_SESSION['scores'][$playerKey] = increase_score($_SESSION['scores'][$playerKey], $_SESSION['deck'], $cardSelected);
             // Store selected card value for player
-            array_push($cards[$playerKey]['values'], $deck[$cardSelected]['value']);
+            array_push($_SESSION['cards'][$playerKey]['values'], $_SESSION['deck'][$cardSelected]['value']);
             // Store card image
-            array_push($cards[$playerKey]['images'], $deck[$cardSelected]['image']);
+            array_push($_SESSION['cards'][$playerKey]['images'], $_SESSION['deck'][$cardSelected]['image']);
             // Remove selected card from deck
-            unset($deck[$cardSelected]);
+            unset($_SESSION['deck'][$cardSelected]);
             // Check if score can be reduced
-            if ($scores[$playerKey] > 21) {
-                $scores[$playerKey] = check_for_aces($scores[$playerKey], $cards[$playerKey]['values']);
+            if ($_SESSION['scores'][$playerKey] > 21) {
+                $_SESSION['scores'][$playerKey] = check_for_aces($_SESSION['scores'][$playerKey], $_SESSION['cards'][$playerKey]['values']);
             }
         }
-        // Stops game when either player reaches 18
-        foreach ($scores as $score) {
+    }
+}
+
+// Twist flow
+if (isset($_POST['twist'])) {
+    session_start();
+    // Deal one card
+    $cardSelected = array_rand($_SESSION['deck']);
+    // Add card value to score
+    $_SESSION['scores'][$_SESSION['activePlayers'][0]] = increase_score($_SESSION['scores'][$_SESSION['activePlayers'][0]], $_SESSION['deck'], $cardSelected);
+    // Store selected card value for player
+    array_push($_SESSION['cards'][$_SESSION['activePlayers'][0]]['values'], $_SESSION['deck'][$cardSelected]['value']);
+    // Store card image
+    array_push($_SESSION['cards'][$_SESSION['activePlayers'][0]]['images'], $_SESSION['deck'][$cardSelected]['image']);
+    // Check if score can be reduced
+    if ($_SESSION['scores'][$_SESSION['activePlayers'][0]] > 21 && $_SESSION['deck'][$cardSelected]['value'] === 11) {
+        $_SESSION['scores'][$_SESSION['activePlayers'][0]] -= 10;
+    }
+    // Remove selected card from deck
+    unset($_SESSION['deck'][$cardSelected]);
+    // Set current player as inactive
+    if ($_SESSION['scores'][$_SESSION['activePlayers'][0]] >= 21) {
+        array_splice($_SESSION['activePlayers'], 0, 1);
+    }
+    // Run winner function if no more active players
+    if (count($_SESSION['activePlayers']) === 0) {
+        $winner = get_winner($_SESSION['players'], $_SESSION['scores']);
+    }
+}
+
+// Stick flow
+if (isset($_POST['stick'])) {
+    session_start();
+    // Set current player as inactive
+    array_splice($_SESSION['activePlayers'], 0, 1);
+    // Run winner function if no more active players
+    if (count($_SESSION['activePlayers']) === 0) {
+        $winner = get_winner($_SESSION['players'], $_SESSION['scores']);
+    }
+}
+
+// Executed on selection of quick deal button
+if (isset($_POST['quickDeal'])) {
+    $_SESSION['activePlayers'] = [];
+    while (true) {
+        foreach (array_keys($_SESSION['players']) as $playerKey) {
+            // Deal one card
+            $cardSelected = array_rand($_SESSION['deck']);
+            // Add card value to score
+            $_SESSION['scores'][$playerKey] = increase_score($_SESSION['scores'][$playerKey], $_SESSION['deck'], $cardSelected);
+            // Store selected card value for player
+            array_push($_SESSION['cards'][$playerKey]['values'], $_SESSION['deck'][$cardSelected]['value']);
+            // Store card image
+            array_push($_SESSION['cards'][$playerKey]['images'], $_SESSION['deck'][$cardSelected]['image']);
+            // Remove selected card from deck
+            unset($_SESSION['deck'][$cardSelected]);
+            // Check if score can be reduced
+            if ($_SESSION['scores'][$playerKey] > 21) {
+                $_SESSION['scores'][$playerKey] = check_for_aces($_SESSION['scores'][$playerKey], $_SESSION['cards'][$playerKey]['values']);
+            }
+        }
+        // Stops game when any player reaches 18
+        foreach ($_SESSION['scores'] as $score) {
             if ($score >= 18) {
                 break 2;
             }
         }
     }
-    // Runs winner function if cards have been dealt
-    $winner = get_winner($players, $scores);
+    // Runs winner function
+    $winner = get_winner($_SESSION['players'], $_SESSION['scores']);
 }
