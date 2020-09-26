@@ -32,7 +32,7 @@ require 'functions.php';
                     foreach (array_keys($_SESSION['players']) as $playerKey):
             ?>
             <div class='player'>
-                <h1><?php $_SESSION['players'][$playerKey] ?></h1>
+                <h1><?php echo $_SESSION['players'][$playerKey]; ?></h1>
                 <div class='cardContainer'>
                     <?php
                         // Creates div with image for even keys in selected cards array
