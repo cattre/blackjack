@@ -13,18 +13,18 @@ require 'functions.php';
     <body>
         <form id='dealButtons' method='post'>
             <label id='playersSelect'>Players<select name='players'>
-                <?php if (isset($numPlayers) && isset($allowedPlayers)) {
+                <?php if (isset($_SESSION['numPlayers']) && isset($allowedPlayers)) {
                     foreach ($allowedPlayers as $playerNum) {
-                        if ($numPlayers == $playerNum) {
-                            echo "<option selected='selected' value=$playerNum>$playerNum</option>";
+                        if ($_SESSION['numPlayers'] == $playerNum) {
+                            echo "<option selected='selected' value={$_SESSION['numPlayers']}>{$_SESSION['numPlayers']}</option>";
                         } else {
                             echo "<option value=$playerNum>$playerNum</option>";
                         }
                     }
                 } ?>
             </select></label>
-            <input id='deal' type='submit' name='deal' value='Deal'>
-            <input id='quickDeal' type='submit' name='quickDeal' value='Quick Deal!'>
+            <input id='deal' type='submit' name='deal' value='New game'>
+            <input id='quickDeal' type='submit' name='quickDeal' value='Quick deal'>
         </form>
         <?php if(isset($_SESSION['players'])) { ?>
         <div id='container'>
@@ -59,7 +59,7 @@ require 'functions.php';
                 </div>
                 <div>
                     <?php if (!empty($_SESSION['activePlayers']) && $_SESSION['activePlayers'][0] === $playerKey) { ?>
-                        <form id=stickTwist method='post'>
+                        <form id='stickTwist' method='post'>
                             <input id='stick' type='submit' name='stick' value='Stick'>
                             <input id='twist' type='submit' name='twist' value='Twist'>
                         </form>

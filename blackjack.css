@@ -10,12 +10,16 @@ body {
     background-size: cover;
 }
 
-form {
+#dealButtons {
     display: flex;
     align-content: center;
-    text-align: center;
+    justify-content: center;
+}
+
+#playersSelect {
     padding: 10px;
     font-size: 25px;
+    vertical-align: middle;
 }
 
 select {
@@ -26,28 +30,39 @@ select {
     color: #333333;
 }
 
-/*#newGame {*/
-/*    display: flex;*/
-/*    align-content: center;*/
-/*}*/
-
 #deal {
     background-color: #333333;
-    height: 1.5em;
     font-size: 40px;
     margin: 10px
 }
 
 #quickDeal {
-    background-color: #F16529;
-    height: 1.5em;
+    background-color: #FF0000;
     font-size: 40px;
     margin: 10px
 }
 
-#stick, #twist {
-    color: white;
-    background-color: red;
+#stickTwist {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+#stick {
+    color: #333333;
+    background-color: #FFFFFF;
+    font-size: 25px;
+    margin: 10px;
+    padding: 10px;
+}
+
+#twist {
+    color: #FFFFFF;
+    background-color: #1e90FF;
+    font-size: 25px;
+    margin: 10px;
+    padding: 10px;
 }
 
 #container {
@@ -66,14 +81,17 @@ h1 {
     text-align: center;
 }
 
-.card_container {
+.cardContainer {
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
+    height: 50vh;
 }
 
 .card {
-    display: flex;
     margin: 1em;
+    flex-grow: 1;
+    flex-basis: 10%;
 }
 
 img {
@@ -81,7 +99,7 @@ img {
     max-height:100%;
 }
 
-.player_score {
+.playerScore {
     text-align: center;
 }
 

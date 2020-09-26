@@ -203,8 +203,8 @@ function get_winner(array $players, array $scores) :string {
 if (isset($_POST['deal']) || isset($_POST['quickDeal'])) {
     session_start();
     // Initialise players
-    $numPlayers = $_POST['players'];
-    $_SESSION['players'] = initialise_players($numPlayers);
+    $_SESSION['numPlayers'] = $_POST['players'];
+    $_SESSION['players'] = initialise_players($_SESSION['numPlayers']);
     // Builds deck
     $_SESSION['deck'] = build_deck($suits, $values);
     // Initialise scores and card values
