@@ -6,26 +6,30 @@ require 'functions.php';
 <html lang='en'>
     <head>
         <title>Blackjack</title>
+        <link href='https://fonts.googleapis.com/css2?family=Lobster&display=swap' rel='stylesheet'>
         <link rel='stylesheet' type= 'text/css' href='blackjack.css'>
         <meta name='viewport' content='width=device-width, initial-scale=1'>
         <meta charset='UTF-8'>
     </head>
     <body>
-        <form id='dealButtons' method='post'>
-            <label id='playersSelect'>Players<select name='players'>
-                <?php if (isset($allowedPlayers)) {
-                    foreach ($allowedPlayers as $playerNum) {
-                        if ($_SESSION['numPlayers'] == $playerNum) {
-                            echo "<option selected='selected' value={$_SESSION['numPlayers']}>{$_SESSION['numPlayers']}</option>";
-                        } else {
-                            echo "<option value=$playerNum>$playerNum</option>";
+        <header>
+            <h1>Blackjack</h1>
+            <form id='dealButtons' method='post'>
+                <label id='playersSelect'>Players<select name='players'>
+                    <?php if (isset($allowedPlayers)) {
+                        foreach ($allowedPlayers as $playerNum) {
+                            if ($_SESSION['numPlayers'] == $playerNum) {
+                                echo "<option selected='selected' value={$_SESSION['numPlayers']}>{$_SESSION['numPlayers']}</option>";
+                            } else {
+                                echo "<option value=$playerNum>$playerNum</option>";
+                            }
                         }
-                    }
-                } ?>
-            </select></label>
-            <input id='deal' type='submit' name='deal' value='New game'>
-            <input id='quickDeal' type='submit' name='quickDeal' value='Quick deal'>
-        </form>
+                    } ?>
+                </select></label>
+                <input id='deal' type='submit' name='deal' value='New game'>
+                <input id='quickDeal' type='submit' name='quickDeal' value='Quick deal'>
+            </form>
+        </header>
         <?php if(isset($_SESSION['players'])) { ?>
         <div id='container'>
             <?php
@@ -83,5 +87,8 @@ require 'functions.php';
                 ?>
             </h1>
         </div>
+        <footer>
+            Built with <span>❤</span> by <a target='_blank' href='https://cattre.github.io'>Richard Catterill</a>
+        </footer>
     </body>
 </html>
