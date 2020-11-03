@@ -1,6 +1,6 @@
 <?php
 
-require '../blackjack.php';
+require '../index.php';
 
 use PHPUnit\Framework\TestCase;
 
